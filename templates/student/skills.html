@@ -54,7 +54,7 @@
                                 <td>
                                     <form method="POST" action="{{ url_for('skills.update_skill', skill_entry_id=ss.id) }}" class="d-inline-flex align-items-center gap-2">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                        <select name="proficiency_level" class="form-select form-select-sm bg-dark text-white border-secondary border-opacity-50 py-1" style="width: 140px;" onchange="this.form.submit()">
+                                        <select name="proficiency_level" class="form-select form-select-sm form-select-custom py-1" style="width: 145px;" onchange="this.form.submit()">
                                             <option value="beginner" {% if ss.proficiency_level == 'beginner' %}selected{% endif %}>Beginner</option>
                                             <option value="intermediate" {% if ss.proficiency_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
                                             <option value="advanced" {% if ss.proficiency_level == 'advanced' %}selected{% endif %}>Advanced</option>
@@ -63,18 +63,18 @@
                                 </td>
                                 <td>
                                     {% if ss.assessment_score is not none %}
-                                        <span class="text-success fw-bold">{{ ss.assessment_score }}%</span>
+                                        <span class="text-emerald fw-bold">{{ ss.assessment_score }}%</span>
                                     {% else %}
-                                        <span class="text-muted small">Not tested yet</span>
+                                        <span class="badge bg-secondary-subtle text-light">Not tested yet</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if ss.verified %}
-                                        <span class="badge bg-success-subtle text-success border border-success border-opacity-25">
+                                        <span class="badge badge-success-soft">
                                             <i class="bi bi-patch-check-fill me-1"></i> Verified
                                         </span>
                                     {% else %}
-                                        <span class="badge bg-secondary-subtle text-warning border border-warning border-opacity-25">
+                                        <span class="badge badge-warning-soft">
                                             <i class="bi bi-person me-1"></i> Self-Assessed
                                         </span>
                                     {% endif %}

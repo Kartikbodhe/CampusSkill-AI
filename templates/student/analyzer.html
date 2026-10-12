@@ -142,13 +142,13 @@
                             <tr>
                                 <td>
                                     <strong class="text-white">{{ item.skill_name }}</strong>
-                                    <span class="text-muted d-block small" style="font-size: 0.75rem;">{{ item.category }}</span>
+                                    <span class="text-muted d-block small" style="font-size: 0.78rem;">{{ item.category }}</span>
                                 </td>
                                 <td>
                                     <span class="badge badge-danger-soft">Weight: {{ item.importance_weight }}</span>
                                 </td>
-                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency }}</span></td>
-                                <td><span class="badge bg-dark text-muted">Not Learned</span></td>
+                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency|title }}</span></td>
+                                <td><span class="badge" style="background: rgba(244, 63, 94, 0.12); color: #FDA4AF; border: 1px solid rgba(244, 63, 94, 0.25);">Not Learned</span></td>
                                 <td><span class="badge badge-danger-soft"><i class="bi bi-x-circle me-1"></i> Missing</span></td>
                                 <td class="small text-light">{{ item.recommendation_tip }}</td>
                             </tr>
@@ -159,13 +159,13 @@
                             <tr>
                                 <td>
                                     <strong class="text-white">{{ item.skill_name }}</strong>
-                                    <span class="text-muted d-block small" style="font-size: 0.75rem;">{{ item.category }}</span>
+                                    <span class="text-muted d-block small" style="font-size: 0.78rem;">{{ item.category }}</span>
                                 </td>
                                 <td>
                                     <span class="badge badge-warning-soft">Weight: {{ item.importance_weight }}</span>
                                 </td>
-                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency }}</span></td>
-                                <td><span class="badge badge-{{ item.current_proficiency|lower }}">{{ item.current_proficiency }}</span></td>
+                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency|title }}</span></td>
+                                <td><span class="badge badge-warning-soft">{{ item.current_proficiency|title }}</span></td>
                                 <td><span class="badge badge-warning-soft"><i class="bi bi-arrow-up-circle me-1"></i> Needs Imp.</span></td>
                                 <td class="small text-light">{{ item.recommendation_tip }}</td>
                             </tr>
@@ -176,15 +176,15 @@
                             <tr>
                                 <td>
                                     <strong class="text-white">{{ item.skill_name }}</strong>
-                                    <span class="text-muted d-block small" style="font-size: 0.75rem;">{{ item.category }}</span>
+                                    <span class="text-muted d-block small" style="font-size: 0.78rem;">{{ item.category }}</span>
                                 </td>
                                 <td>
                                     <span class="badge badge-success-soft">Weight: {{ item.importance_weight }}</span>
                                 </td>
-                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency }}</span></td>
-                                <td><span class="badge badge-{{ item.current_proficiency|lower }}">{{ item.current_proficiency }}</span></td>
+                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency|title }}</span></td>
+                                <td><span class="badge badge-success-soft">{{ item.current_proficiency|title }}</span></td>
                                 <td><span class="badge badge-success-soft"><i class="bi bi-check-circle me-1"></i> Proficient</span></td>
-                                <td class="small text-muted">Meets requirement. Practice advanced concepts.</td>
+                                <td class="small text-secondary">Meets requirement. Maintain with advanced concepts.</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -192,14 +192,14 @@
             </div>
 
             <!-- Mathematical Explanation Section -->
-            <div class="mt-4 p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 small text-muted">
-                <h6 class="text-white fw-bold mb-2">How This Score is Calculated:</h6>
-                <p class="mb-1">
+            <div class="mt-4 p-3 p-md-4 rounded-3 border border-secondary border-opacity-25 small" style="background: rgba(10, 14, 30, 0.7); color: #CBD5E1;">
+                <h6 class="text-white fw-bold mb-2"><i class="bi bi-calculator me-1 text-primary"></i> How This Score is Calculated:</h6>
+                <p class="mb-1 text-secondary">
                     Each skill requirement carries an importance weight (1 = Good-to-have, 2 = Important, 3 = Critical) multiplied by its target proficiency (Beginner = 1, Intermediate = 2, Advanced = 3).
                 </p>
-                <p class="mb-0">
+                <p class="mb-0 text-secondary">
                     Your score is the ratio of earned weighted proficiency points to total required points: 
-                    <code>Match Score = (Earned {{ gap_data.earned_weight }} / Possible {{ gap_data.total_possible_weight }}) &times; 100 = {{ gap_data.match_percentage }}%</code>.
+                    <code class="px-2 py-1 rounded" style="background: rgba(255, 255, 255, 0.08); color: #38BDF8;">Match Score = (Earned {{ gap_data.earned_weight }} / Possible {{ gap_data.total_possible_weight }}) &times; 100 = {{ gap_data.match_percentage }}%</code>.
                 </p>
             </div>
         </div>

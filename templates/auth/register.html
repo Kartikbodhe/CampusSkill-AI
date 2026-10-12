@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Student Registration — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="saas-card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon mx-auto mb-2" style="width: 48px; height: 48px; font-size: 1.3rem;">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h3 class="text-white fw-bold mb-1">Create Student Profile</h3>
+                    <p class="text-muted small">Begin tracking your placement readiness and skill gaps</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="mb-3">
+                        <label class="form-label-custom" for="full_name">Full Name *</label>
+                        <input type="text" class="form-control form-control-custom" id="full_name" name="full_name" required placeholder="e.g. Rahul Sharma">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label-custom" for="email">College / Personal Email *</label>
+                        <input type="email" class="form-control form-control-custom" id="email" name="email" required placeholder="rahul@college.edu">
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="password">Password *</label>
+                            <input type="password" class="form-control form-control-custom" id="password" name="password" minlength="6" required placeholder="Min 6 characters">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="confirm_password">Confirm Password *</label>
+                            <input type="password" class="form-control form-control-custom" id="confirm_password" name="confirm_password" required placeholder="Repeat password">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="branch">Engineering Branch</label>
+                            <select class="form-select form-select-custom" id="branch" name="branch">
+                                <option value="Computer Science">Computer Science & Engineering</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics & Communication">Electronics & Communication</option>
+                                <option value="Data Science & AI">Data Science & AI</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Electrical Engineering">Electrical Engineering</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="current_year">Current Academic Year</label>
+                            <select class="form-select form-select-custom" id="current_year" name="current_year">
+                                <option value="1st Year">1st Year (Freshman)</option>
+                                <option value="2nd Year">2nd Year (Sophomore)</option>
+                                <option value="3rd Year" selected>3rd Year (Junior)</option>
+                                <option value="4th Year">4th Year (Senior)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label-custom" for="target_job_role_id">Target Job Role Goal</label>
+                        <select class="form-select form-select-custom" id="target_job_role_id" name="target_job_role_id">
+                            <option value="">Select your preferred role...</option>
+                            {% for role in job_roles %}
+                                <option value="{{ role.id }}">{{ role.title }} ({{ role.category }})</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text text-muted small mt-1">
+                            You can change this or add custom skills anytime inside your dashboard.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2 fs-6 mb-3">
+                        Register & Launch Dashboard <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </form>
+
+                <div class="text-center mt-3 small text-muted">
+                    Already registered? <a href="{{ url_for('auth.login') }}" class="text-info fw-semibold text-decoration-none">Sign In to Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

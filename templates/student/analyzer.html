@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Skill Gap Analyzer & Job Explorer — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Role Selector & Hero Header -->
+    <div class="saas-card mb-4 p-4">
+        <div class="row align-items-center g-3">
+            <div class="col-md-7">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small mb-2">
+                    Core Intelligence Engine
+                </span>
+                <h3 class="text-white fw-bold mb-1">Placement Skill Gap Analyzer</h3>
+                <p class="text-muted small mb-0">
+                    Compare your actual competencies against job role requirements. Requirements are structured sample benchmarks curated for campus placement readiness.
+                </p>
+            </div>
+            <div class="col-md-5">
+                <form method="GET" action="{{ url_for('analyzer.view_analyzer') }}" class="d-flex gap-2">
+                    <select name="role_id" class="form-select form-select-custom flex-grow-1" onchange="this.form.submit()">
+                        {% for role in all_roles %}
+                            <option value="{{ role.id }}" {% if selected_role and selected_role.id == role.id %}selected{% endif %}>
+                                {{ role.title }} ({{ role.category }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if selected_role and gap_data %}
+        <!-- Selected Role Overview & Alignment Score -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="saas-card h-100 p-4">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h4 class="text-white fw-bold mb-0">{{ selected_role.title }}</h4>
+                                <span class="badge bg-secondary-subtle text-light">{{ selected_role.category }}</span>
+                                {% if profile.target_job_role_id == selected_role.id %}
+                                    <span class="badge bg-success-subtle text-success border border-success border-opacity-25">
+                                        <i class="bi bi-star-fill me-1"></i> Your Active Target
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <span class="text-muted small d-block mt-1">Sample Compensation Band: {{ selected_role.salary_range }}</span>
+                        </div>
+
+                        {% if profile.target_job_role_id != selected_role.id %}
+                            <form method="POST" action="{{ url_for('analyzer.set_target_role', role_id=selected_role.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="btn btn-outline-custom btn-sm">
+                                    <i class="bi bi-crosshair me-1"></i> Set as My Target Goal
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    <p class="text-muted small mb-4">{{ selected_role.description }}</p>
+
+                    <!-- Score Progress Bar -->
+                    <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-white fw-semibold small">Weighted Alignment Score</span>
+                            <span class="text-{{ gap_data.readiness_class }} fw-bold fs-5">{{ gap_data.match_percentage }}%</span>
+                        </div>
+                        <div class="progress-saas mb-2">
+                            <div class="progress-bar-saas bg-{{ gap_data.readiness_class }}" style="width: {{ gap_data.match_percentage }}%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small" style="font-size: 0.78rem;">
+                            <span>Earned Points: <strong>{{ gap_data.earned_weight }}</strong> / {{ gap_data.total_possible_weight }}</span>
+                            <span class="text-{{ gap_data.readiness_class }} fw-semibold">{{ gap_data.readiness_status }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats & Actions -->
+            <div class="col-lg-4">
+                <div class="saas-card h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <h6 class="text-white fw-bold mb-3">Gap Distribution Summary</h6>
+                        <div class="vstack gap-2 mb-4">
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-dark bg-opacity-50 small">
+                                <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i> Missing Skills:</span>
+                                <span class="badge badge-danger-soft">{{ gap_data.missing_count }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-dark bg-opacity-50 small">
+                                <span class="text-warning"><i class="bi bi-arrow-up-circle-fill me-1"></i> Weak Skills:</span>
+                                <span class="badge badge-warning-soft">{{ gap_data.weak_count }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-dark bg-opacity-50 small">
+                                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Proficient Skills:</span>
+                                <span class="badge badge-success-soft">{{ gap_data.proficient_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <form method="POST" action="{{ url_for('roadmap.generate_roadmap') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="btn btn-primary-custom w-100 py-2">
+                                <i class="bi bi-magic me-1"></i> Generate Tailored Roadmap
+                            </button>
+                        </form>
+                        <span class="text-muted d-block small mt-2" style="font-size: 0.75rem;">
+                            Builds 4 preparation phases matching these specific gaps.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Skill-by-Skill Gap Matrix -->
+        <div class="saas-card p-4 mb-4">
+            <div class="saas-card-header">
+                <div>
+                    <h5 class="text-white fw-bold mb-0">Role Requirements vs Your Competencies</h5>
+                    <span class="text-muted small">Granular comparison of required proficiencies, weights, and recommended actions</span>
+                </div>
+                <span class="badge bg-secondary-subtle text-light small">{{ gap_data.total_required_skills }} Total Requirements</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Skill</th>
+                            <th>Priority / Weight</th>
+                            <th>Target Required</th>
+                            <th>Your Current Level</th>
+                            <th>Gap Status</th>
+                            <th>Actionable Preparation Guidance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 1. Missing Skills -->
+                        {% for item in gap_data.missing_skills %}
+                            <tr>
+                                <td>
+                                    <strong class="text-white">{{ item.skill_name }}</strong>
+                                    <span class="text-muted d-block small" style="font-size: 0.75rem;">{{ item.category }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-danger-soft">Weight: {{ item.importance_weight }}</span>
+                                </td>
+                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency }}</span></td>
+                                <td><span class="badge bg-dark text-muted">Not Learned</span></td>
+                                <td><span class="badge badge-danger-soft"><i class="bi bi-x-circle me-1"></i> Missing</span></td>
+                                <td class="small text-light">{{ item.recommendation_tip }}</td>
+                            </tr>
+                        {% endfor %}
+
+                        <!-- 2. Weak Skills -->
+                        {% for item in gap_data.weak_skills %}
+                            <tr>
+                                <td>
+                                    <strong class="text-white">{{ item.skill_name }}</strong>
+                                    <span class="text-muted d-block small" style="font-size: 0.75rem;">{{ item.category }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-warning-soft">Weight: {{ item.importance_weight }}</span>
+                                </td>
+                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency }}</span></td>
+                                <td><span class="badge badge-{{ item.current_proficiency|lower }}">{{ item.current_proficiency }}</span></td>
+                                <td><span class="badge badge-warning-soft"><i class="bi bi-arrow-up-circle me-1"></i> Needs Imp.</span></td>
+                                <td class="small text-light">{{ item.recommendation_tip }}</td>
+                            </tr>
+                        {% endfor %}
+
+                        <!-- 3. Proficient Skills -->
+                        {% for item in gap_data.proficient_skills %}
+                            <tr>
+                                <td>
+                                    <strong class="text-white">{{ item.skill_name }}</strong>
+                                    <span class="text-muted d-block small" style="font-size: 0.75rem;">{{ item.category }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-success-soft">Weight: {{ item.importance_weight }}</span>
+                                </td>
+                                <td><span class="badge bg-secondary-subtle text-light">{{ item.target_proficiency }}</span></td>
+                                <td><span class="badge badge-{{ item.current_proficiency|lower }}">{{ item.current_proficiency }}</span></td>
+                                <td><span class="badge badge-success-soft"><i class="bi bi-check-circle me-1"></i> Proficient</span></td>
+                                <td class="small text-muted">Meets requirement. Practice advanced concepts.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mathematical Explanation Section -->
+            <div class="mt-4 p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 small text-muted">
+                <h6 class="text-white fw-bold mb-2">How This Score is Calculated:</h6>
+                <p class="mb-1">
+                    Each skill requirement carries an importance weight (1 = Good-to-have, 2 = Important, 3 = Critical) multiplied by its target proficiency (Beginner = 1, Intermediate = 2, Advanced = 3).
+                </p>
+                <p class="mb-0">
+                    Your score is the ratio of earned weighted proficiency points to total required points: 
+                    <code>Match Score = (Earned {{ gap_data.earned_weight }} / Possible {{ gap_data.total_possible_weight }}) &times; 100 = {{ gap_data.match_percentage }}%</code>.
+                </p>
+            </div>
+        </div>
+
+    {% endif %}
+</div>
+{% endblock %}

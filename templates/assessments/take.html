@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Taking Assessment: {{ assessment.title }} — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header with Countdown Timer -->
+    <div class="saas-card mb-4 p-4 sticky-top" style="top: 75px; z-index: 900; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(8px);">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge bg-secondary-subtle text-light small">{{ assessment.category }} Practice Test</span>
+                <h4 class="text-white fw-bold mb-0">{{ assessment.title }}</h4>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-end">
+                    <span class="text-muted small d-block">Time Remaining</span>
+                    <span id="assessmentTimer" data-duration="{{ assessment.duration_minutes * 60 }}" class="fw-bold font-monospace fs-4 text-warning">
+                        {{ assessment.duration_minutes }}:00
+                    </span>
+                </div>
+                <button type="submit" form="assessmentForm" class="btn btn-primary-custom btn-sm py-2 px-3">
+                    Submit Test <i class="bi bi-check2-circle ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions Form -->
+    <form id="assessmentForm" method="POST" action="{{ url_for('assessments.submit_assessment', assessment_id=assessment.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="hidden" id="timeTakenInput" name="time_taken_seconds" value="0">
+
+        <div class="vstack gap-4 mb-4">
+            {% for q in questions %}
+                <div class="saas-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                            Question {{ loop.index }} of {{ questions|length }}
+                        </span>
+                        <span class="text-muted small">1 Point</span>
+                    </div>
+
+                    <h5 class="text-white fw-semibold mb-4">{{ q.question_text }}</h5>
+
+                    <div class="vstack gap-2">
+                        {% for opt_letter, opt_text in [('A', q.option_a), ('B', q.option_b), ('C', q.option_c), ('D', q.option_d)] %}
+                            <label class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-25 d-flex align-items-center gap-3 cursor-pointer hover-surface" style="cursor: pointer;">
+                                <input class="form-check-input mt-0" type="radio" name="q_{{ q.id }}" value="{{ opt_letter }}" style="accent-color: #2563EB;">
+                                <span class="badge bg-secondary-subtle text-light">{{ opt_letter }}</span>
+                                <span class="text-light small flex-grow-1">{{ opt_text }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="saas-card p-4 text-center">
+            <h6 class="text-white fw-bold mb-2">Ready to Submit?</h6>
+            <p class="text-muted small mb-3">Make sure you have attempted all questions. Your score and rationale explanations will be shown immediately.</p>
+            <button type="submit" class="btn btn-primary-custom px-5 py-2 fs-6">
+                Complete and Submit Assessment <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

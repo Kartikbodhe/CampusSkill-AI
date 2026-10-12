@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Student Report: {{ student.full_name }} — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb & Back Action -->
+    <div class="mb-3">
+        <a href="{{ url_for('placement.dashboard') }}" class="text-muted text-decoration-none small">
+            <i class="bi bi-arrow-left me-1"></i> Back to Cohort Directory
+        </a>
+    </div>
+
+    <!-- Student Header Banner -->
+    <div class="saas-card mb-4 p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <h3 class="text-white fw-bold mb-0">{{ student.full_name }}</h3>
+                    <span class="badge badge-{{ readiness.badge_class }}-soft fs-6">{{ readiness.band }}</span>
+                </div>
+                <div class="text-muted small d-flex flex-wrap gap-3">
+                    <span><i class="bi bi-envelope me-1 text-secondary"></i> {{ student.user.email }}</span>
+                    <span><i class="bi bi-mortarboard me-1 text-info"></i> {{ student.branch }} ({{ student.current_year }})</span>
+                    <span><i class="bi bi-building me-1 text-secondary"></i> {{ student.college_name }} &bull; Class of {{ student.graduation_year }}</span>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <span class="text-muted small d-block">Overall Placement Readiness</span>
+                <h2 class="fw-bold mb-0 text-{{ readiness.badge_class }}">{{ readiness.overall_score }}%</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breakdown Columns -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <!-- Readiness Pillars -->
+            <div class="saas-card h-100 p-4">
+                <h5 class="text-white fw-bold mb-3">Readiness Pillars Breakdown</h5>
+                {% for key, item in readiness.breakdown.items() %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1 small">
+                            <span class="text-light fw-medium">{{ item.label }}</span>
+                            <span class="text-white fw-bold">{{ item.score }}% <span class="text-muted">({{ item.weight_percent }}% weight)</span></span>
+                        </div>
+                        <div class="progress-saas">
+                            <div class="progress-bar-saas" style="width: {{ item.score }}%;"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% if student.career_objective %}
+                    <div class="mt-4 p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 small">
+                        <strong class="text-white d-block mb-1">Career Objective:</strong>
+                        <span class="text-muted">{{ student.career_objective }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <!-- Target Role & Gaps -->
+            <div class="saas-card h-100 p-4">
+                <h5 class="text-white fw-bold mb-3">
+                    Target Role: {{ student.target_job_role.title if student.target_job_role else 'Unassigned' }}
+                </h5>
+
+                {% if gap_data %}
+                    <div class="d-flex justify-content-between mb-3 small">
+                        <span class="text-muted">Role Alignment:</span>
+                        <strong class="text-{{ gap_data.readiness_class }}">{{ gap_data.match_percentage }}% Match</strong>
+                    </div>
+
+                    {% if gap_data.missing_skills %}
+                        <h6 class="text-danger fw-bold small text-uppercase mb-2">Missing Competencies:</h6>
+                        <div class="vstack gap-2 mb-3">
+                            {% for m in gap_data.missing_skills %}
+                                <div class="p-2 rounded border border-danger border-opacity-25 bg-danger bg-opacity-10 small d-flex justify-content-between">
+                                    <span class="text-danger fw-semibold">{{ m.skill_name }}</span>
+                                    <span class="text-muted">Required: {{ m.target_proficiency }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if gap_data.weak_skills %}
+                        <h6 class="text-warning fw-bold small text-uppercase mb-2">Needs Improvement:</h6>
+                        <div class="vstack gap-2 mb-3">
+                            {% for w in gap_data.weak_skills %}
+                                <div class="p-2 rounded border border-warning border-opacity-25 bg-warning bg-opacity-10 small d-flex justify-content-between">
+                                    <span class="text-warning fw-semibold">{{ w.skill_name }}</span>
+                                    <span class="text-muted">{{ w.current_proficiency }} &rarr; {{ w.target_proficiency }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-muted small py-3">Student has not yet set a target job role.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Verified Assessment Attempts -->
+    <div class="saas-card p-4">
+        <h5 class="text-white fw-bold mb-3">Verified Practice Test Records ({{ attempts|length }})</h5>
+        {% if attempts %}
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Assessment</th>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Result</th>
+                            <th>Time Spent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for att in attempts %}
+                            <tr>
+                                <td><strong class="text-white">{{ att.assessment.title }}</strong></td>
+                                <td class="text-muted small">{{ att.attempted_at.strftime('%d %b %Y') }}</td>
+                                <td class="fw-bold">{{ att.score }}%</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if att.passed else 'danger' }}-subtle text-{{ 'success' if att.passed else 'danger' }}">
+                                        {{ 'Passed' if att.passed else 'Failed' }}
+                                    </span>
+                                </td>
+                                <td class="text-muted small">{{ att.time_taken_seconds // 60 }}m {{ att.time_taken_seconds % 60 }}s</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-muted small">No verified practice tests attempted yet by this student.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

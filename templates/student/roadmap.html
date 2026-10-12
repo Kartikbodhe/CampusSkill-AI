@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Personalized Learning Roadmap — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header with Target Role & Progress -->
+    <div class="saas-card mb-4 p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small mb-1">
+                    Personalized Pathway
+                </span>
+                <h3 class="text-white fw-bold mb-0">Placement Learning Roadmap: {{ job_role.title }}</h3>
+                <span class="text-muted small">Generated systematically based on your identified skill gaps</span>
+            </div>
+
+            <form method="POST" action="{{ url_for('roadmap.generate_roadmap') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-secondary-custom btn-sm">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Regenerate Roadmap
+                </button>
+            </form>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="text-white fw-semibold small">Overall Roadmap Completion</span>
+                <span class="text-success fw-bold fs-5" id="roadmapProgressLabel">{{ roadmap.completion_percentage }}%</span>
+            </div>
+            <div class="progress-saas mb-2">
+                <div class="progress-bar-saas bg-success" id="roadmapProgressBar" style="width: {{ roadmap.completion_percentage }}%;"></div>
+            </div>
+            <div class="d-flex justify-content-between text-muted small" style="font-size: 0.78rem;">
+                <span>Click the checkbox next to each task to check off completed milestones.</span>
+                <span>Progress persists in the database.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 Phases Container -->
+    <div class="row g-4">
+        {% set phase_metadata = [
+            (1, 'Phase 1: Core Fundamentals', 'Foundational syntax, principles, and concepts', 'bi-book-half', 'primary'),
+            (2, 'Phase 2: Practical Exercises', 'Hands-on practice, coding tasks, and query building', 'bi-code-slash', 'info'),
+            (3, 'Phase 3: Mini-Projects', 'Real-world projects showcasing integration of required skills', 'bi-folder-check', 'warning'),
+            (4, 'Phase 4: Interview Preparation', 'Technical interview questions, problem solving & behavioral STAR prep', 'bi-person-badge-fill', 'success')
+        ] %}
+
+        {% for phase_num, title, subtitle, icon, badge_color in phase_metadata %}
+            <div class="col-12">
+                <div class="saas-card p-4">
+                    <div class="saas-card-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="brand-icon" style="width: 36px; height: 36px; font-size: 1.1rem; background: var(--{{ badge_color }}-bg); color: var(--{{ badge_color }}-color);">
+                                <i class="bi {{ icon }}"></i>
+                            </span>
+                            <div>
+                                <h5 class="text-white fw-bold mb-0">{{ title }}</h5>
+                                <span class="text-muted small">{{ subtitle }}</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-{{ badge_color }}-subtle text-{{ badge_color }} small">
+                            {{ phases.get(phase_num, [])|length }} Tasks
+                        </span>
+                    </div>
+
+                    {% if phases.get(phase_num) %}
+                        <div class="vstack gap-2">
+                            {% for task in phases.get(phase_num) %}
+                                <div class="roadmap-item {% if task.is_completed %}completed{% endif %}">
+                                    <form method="POST" action="{{ url_for('roadmap.toggle_task', task_id=task.id) }}" class="roadmap-toggle-form">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <input type="checkbox" class="roadmap-checkbox" {% if task.is_completed %}checked{% endif %}>
+                                    </form>
+
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+                                            <h6 class="text-white fw-bold mb-0 {% if task.is_completed %}text-decoration-line-through text-muted{% endif %}">
+                                                {{ task.title }}
+                                            </h6>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge badge-{{ 'danger-soft' if task.priority == 'High' else ('warning-soft' if task.priority == 'Medium' else 'secondary-subtle text-light') }}">
+                                                    {{ task.priority }} Priority
+                                                </span>
+                                                <span class="text-muted small"><i class="bi bi-clock me-1"></i>~{{ task.estimated_hours }}h</span>
+                                            </div>
+                                        </div>
+
+                                        <p class="text-muted small mb-2">{{ task.description }}</p>
+
+                                        <div class="d-flex align-items-center gap-3 flex-wrap small">
+                                            <span class="badge bg-secondary-subtle text-light">{{ task.category }}</span>
+                                            {% if task.resource_url %}
+                                                <a href="{{ task.resource_url }}" target="_blank" rel="noopener noreferrer" class="text-info text-decoration-none">
+                                                    <i class="bi bi-box-arrow-up-right me-1"></i> Study Resource
+                                                </a>
+                                            {% endif %}
+                                            {% if task.is_completed and task.completed_at %}
+                                                <span class="text-success" style="font-size: 0.75rem;">
+                                                    <i class="bi bi-check-all me-1"></i> Completed on {{ task.completed_at.strftime('%d %b %Y') }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-muted small py-2">
+                            No specific remediation required for this phase. You already possess the baseline prerequisites!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Placement Disclaimer -->
+    <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 mt-4 small text-muted text-center">
+        <i class="bi bi-info-circle text-info me-1"></i>
+        Completing this roadmap strengthens core competencies for technical interviews and placement assessments. Consistent practice and project building yield the best results.
+    </div>
+</div>
+{% endblock %}

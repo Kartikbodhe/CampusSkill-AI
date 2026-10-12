@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Welcome Bar -->
+    <div class="saas-card mb-4 p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h3 class="text-white fw-bold mb-0">{{ profile.full_name }}</h3>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small">Student</span>
+            </div>
+            <div class="text-muted small d-flex flex-wrap gap-3">
+                <span><i class="bi bi-mortarboard me-1 text-info"></i> {{ profile.branch }} &bull; {{ profile.current_year }}</span>
+                <span><i class="bi bi-building me-1 text-secondary"></i> {{ profile.college_name }}</span>
+                {% if profile.target_job_role %}
+                    <span><i class="bi bi-crosshair me-1 text-warning"></i> Target Goal: <strong class="text-white">{{ profile.target_job_role.title }}</strong></span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('analyzer.view_analyzer') }}" class="btn btn-secondary-custom btn-sm">
+                <i class="bi bi-diagram-3 me-1"></i> Analyze Gaps
+            </a>
+            <a href="{{ url_for('student.profile') }}" class="btn btn-outline-custom btn-sm">
+                <i class="bi bi-pencil-square me-1"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 Key Placement Metric Tiles -->
+    <div class="row g-3 mb-4">
+        <!-- Tile 1: Composite Placement Readiness -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-tile h-100">
+                <div class="metric-icon-box bg-{{ readiness.badge_class }}-subtle text-{{ readiness.badge_class }}">
+                    <i class="bi bi-speedometer"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Placement Readiness</span>
+                    <h3 class="text-white fw-bold mb-0">{{ readiness.overall_score }}%</h3>
+                    <span class="badge badge-{{ readiness.badge_class }}-soft small mt-1">
+                        {{ readiness.band }}
+                    </span>
+                    {% if readiness.is_provisional %}
+                        <span class="text-secondary d-block mt-1" style="font-size: 0.72rem;">*Provisional (tests pending)</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Tile 2: Target Role Alignment -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-tile h-100">
+                <div class="metric-icon-box bg-primary-subtle text-primary">
+                    <i class="bi bi-bullseye"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Role Alignment</span>
+                    <h3 class="text-white fw-bold mb-0">
+                        {% if gap_analysis %}
+                            {{ gap_analysis.match_percentage }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h3>
+                    <span class="small text-muted d-block mt-1 text-truncate" style="max-width: 140px;">
+                        {{ profile.target_job_role.title if profile.target_job_role else 'No role set' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tile 3: Roadmap Progress -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-tile h-100">
+                <div class="metric-icon-box bg-success-subtle text-success">
+                    <i class="bi bi-signpost-split"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Roadmap Milestones</span>
+                    <h3 class="text-white fw-bold mb-0">
+                        {{ active_roadmap.completion_percentage if active_roadmap else 0.0 }}%
+                    </h3>
+                    <span class="small text-muted d-block mt-1">
+                        {{ active_roadmap.tasks|selectattr('is_completed')|list|length if active_roadmap else 0 }} of {{ active_roadmap.tasks|length if active_roadmap else 0 }} tasks
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tile 4: Recorded Skills Count -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-tile h-100">
+                <div class="metric-icon-box bg-info-subtle text-info">
+                    <i class="bi bi-cpu"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Recorded Skills</span>
+                    <h3 class="text-white fw-bold mb-0">{{ profile.skills|length }}</h3>
+                    <a href="{{ url_for('skills.manage_skills') }}" class="small text-info text-decoration-none mt-1 d-block">
+                        Manage Skills <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Analytics & Readiness Breakdown -->
+    <div class="row g-4 mb-4">
+        <!-- Readiness Pillar Breakdown & Chart -->
+        <div class="col-lg-7">
+            <div class="saas-card h-100 p-4">
+                <div class="saas-card-header">
+                    <div>
+                        <h5 class="text-white fw-bold mb-0">Readiness Score Formula & Breakdown</h5>
+                        <span class="text-muted small">Configured weighted pillars determining your placement index</span>
+                    </div>
+                    <span class="badge bg-secondary-subtle text-light">Explainable AI</span>
+                </div>
+
+                <div class="row align-items-center g-3">
+                    <div class="col-md-7">
+                        {% for key, item in readiness.breakdown.items() %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1 small">
+                                    <span class="text-light fw-medium">{{ item.label }}</span>
+                                    <span class="text-white fw-bold">{{ item.score }}% <span class="text-secondary">({{ item.weight_percent }}% wt)</span></span>
+                                </div>
+                                <div class="progress-saas">
+                                    <div class="progress-bar-saas" style="width: {{ item.score }}%;"></div>
+                                </div>
+                                {% if item.is_provisional %}
+                                    <span class="text-warning" style="font-size: 0.72rem;"><i class="bi bi-exclamation-circle me-1"></i> Self-assessed. Take practice test to verify.</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-5 text-center">
+                        <canvas id="readinessRadarChart" style="max-height: 220px;"></canvas>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 mt-3 small text-muted">
+                    <i class="bi bi-info-circle text-info me-1"></i>
+                    {{ readiness.disclaimer }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Skill Gap Quick View -->
+        <div class="col-lg-5">
+            <div class="saas-card h-100 p-4">
+                <div class="saas-card-header">
+                    <div>
+                        <h5 class="text-white fw-bold mb-0">Top Priority Action Items</h5>
+                        <span class="text-muted small">Based on {{ profile.target_job_role.title if profile.target_job_role else 'your chosen role' }}</span>
+                    </div>
+                    <a href="{{ url_for('analyzer.view_analyzer') }}" class="btn btn-outline-custom btn-sm">Full Matrix</a>
+                </div>
+
+                {% if gap_analysis %}
+                    {% if gap_analysis.missing_skills or gap_analysis.weak_skills %}
+                        <div class="vstack gap-2">
+                            {% for item in gap_analysis.missing_skills[:3] %}
+                                <div class="p-2 rounded border border-danger border-opacity-25 bg-danger bg-opacity-10 small">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="text-danger"><i class="bi bi-x-circle me-1"></i> {{ item.skill_name }}</strong>
+                                        <span class="badge badge-danger-soft">Missing</span>
+                                    </div>
+                                    <div class="text-light mt-1" style="font-size: 0.8rem;">{{ item.recommendation_tip }}</div>
+                                </div>
+                            {% endfor %}
+
+                            {% for item in gap_analysis.weak_skills[:2] %}
+                                <div class="p-2 rounded border border-warning border-opacity-25 bg-warning bg-opacity-10 small">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="text-warning"><i class="bi bi-arrow-up-circle me-1"></i> {{ item.skill_name }}</strong>
+                                        <span class="badge badge-warning-soft">{{ item.current_proficiency }} &rarr; {{ item.target_proficiency }}</span>
+                                    </div>
+                                    <div class="text-light mt-1" style="font-size: 0.8rem;">{{ item.recommendation_tip }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <a href="{{ url_for('roadmap.view_roadmap') }}" class="btn btn-primary-custom btn-sm w-100">
+                                Open Tailored Roadmap <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-check-circle-fill text-success fs-1 mb-2"></i>
+                            <h6 class="text-white fw-bold">All Requirements Met!</h6>
+                            <p class="text-muted small">Your profile meets or exceeds all minimum skill proficiencies for {{ profile.target_job_role.title }}.</p>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <!-- Empty State: No Target Role -->
+                    <div class="text-center py-4">
+                        <i class="bi bi-crosshair text-muted fs-1 mb-2"></i>
+                        <h6 class="text-white fw-bold">No Target Role Selected</h6>
+                        <p class="text-muted small mb-3">Choose a target job role in the Job Explorer to see real-time skill gaps and generate a 4-phase learning plan.</p>
+                        <a href="{{ url_for('analyzer.view_analyzer') }}" class="btn btn-primary-custom btn-sm">Explore Job Roles</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommended Job Roles & Recent Practice Attempts -->
+    <div class="row g-4">
+        <!-- Recommended Job Roles Based On Skills -->
+        <div class="col-lg-6">
+            <div class="saas-card h-100 p-4">
+                <div class="saas-card-header">
+                    <div>
+                        <h5 class="text-white fw-bold mb-0">Recommended Job Roles</h5>
+                        <span class="text-muted small">Roles best aligned with your existing competencies</span>
+                    </div>
+                </div>
+
+                <div class="vstack gap-3">
+                    {% for item in recommended_roles %}
+                        <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-25 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <h6 class="text-white fw-bold mb-0">{{ item.role.title }}</h6>
+                                    {% if item.is_current_target %}
+                                        <span class="badge bg-primary-subtle text-primary small">Target</span>
+                                    {% endif %}
+                                </div>
+                                <span class="text-muted small">{{ item.role.category }} &bull; {{ item.role.salary_range }}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="text-end">
+                                    <strong class="text-{{ item.readiness_class }} fs-6">{{ item.match_percentage }}%</strong>
+                                    <span class="text-muted d-block small" style="font-size: 0.72rem;">{{ item.missing_count }} missing</span>
+                                </div>
+                                <a href="{{ url_for('analyzer.view_analyzer', role_id=item.role.id) }}" class="btn btn-outline-custom btn-sm py-1 px-2">
+                                    Compare
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Assessment Performance -->
+        <div class="col-lg-6">
+            <div class="saas-card h-100 p-4">
+                <div class="saas-card-header">
+                    <div>
+                        <h5 class="text-white fw-bold mb-0">Recent Practice Tests</h5>
+                        <span class="text-muted small">Empirical verification history</span>
+                    </div>
+                    <a href="{{ url_for('assessments.list_assessments') }}" class="btn btn-outline-custom btn-sm">Take Test</a>
+                </div>
+
+                {% if recent_attempts %}
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Assessment</th>
+                                    <th>Score</th>
+                                    <th>Result</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for att in recent_attempts %}
+                                    <tr>
+                                        <td>
+                                            <strong class="text-white small">{{ att.assessment.title }}</strong>
+                                            <span class="text-muted d-block small" style="font-size: 0.72rem;">{{ att.attempted_at.strftime('%d %b %Y') }}</span>
+                                        </td>
+                                        <td class="fw-bold">{{ att.score }}%</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if att.passed else 'danger' }}-subtle text-{{ 'success' if att.passed else 'danger' }} small">
+                                                {{ 'Passed' if att.passed else 'Failed' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('assessments.view_result', attempt_id=att.id) }}" class="text-info small text-decoration-none">
+                                                Review
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-clipboard2-check text-muted fs-1 mb-2"></i>
+                        <h6 class="text-white fw-bold">No Tests Completed Yet</h6>
+                        <p class="text-muted small mb-3">Take practice tests in SQL, Python, Aptitude, or DSA to earn verified credentials and boost your readiness index.</p>
+                        <a href="{{ url_for('assessments.list_assessments') }}" class="btn btn-primary-custom btn-sm">Browse Tests</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('readinessRadarChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Technical', 'Aptitude', 'DSA', 'Communication', 'Tests'],
+                datasets: [{
+                    label: 'Readiness Index',
+                    data: [
+                        {{ readiness.breakdown.technical.score }},
+                        {{ readiness.breakdown.aptitude.score }},
+                        {{ readiness.breakdown.dsa.score }},
+                        {{ readiness.breakdown.communication.score }},
+                        {{ readiness.breakdown.assessment.score }}
+                    ],
+                    backgroundColor: 'rgba(37, 99, 235, 0.25)',
+                    borderColor: '#38BDF8',
+                    pointBackgroundColor: '#2563EB',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#38BDF8'
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        pointLabels: { color: '#94A3B8', font: { size: 10 } },
+                        ticks: { display: false, maxTicksLimit: 5 },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Practice Assessments — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="saas-card mb-4 p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small mb-1">
+                    Empirical Skill Verification
+                </span>
+                <h3 class="text-white fw-bold mb-0">Placement Practice Assessments</h3>
+                <span class="text-muted small">Verify your skills under timed exam conditions to validate competencies and boost your readiness index</span>
+            </div>
+            <a href="{{ url_for('student.dashboard') }}" class="btn btn-secondary-custom btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Assessments Cards Grid -->
+    <h5 class="text-white fw-bold mb-3">Available Assessment Modules</h5>
+    <div class="row g-4 mb-5">
+        {% for a in assessments %}
+            <div class="col-md-6 col-lg-4">
+                <div class="saas-card h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary-subtle text-light">{{ a.category }}</span>
+                            <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ a.duration_minutes }} Mins</span>
+                        </div>
+                        <h5 class="text-white fw-bold mb-2">{{ a.title }}</h5>
+                        <p class="text-muted small mb-3">{{ a.description }}</p>
+
+                        <div class="small text-secondary mb-3">
+                            <i class="bi bi-question-circle me-1"></i> {{ a.questions|length }} Multiple-Choice Questions &bull; Pass: {{ a.passing_score }}%
+                        </div>
+                    </div>
+
+                    <div class="border-top border-secondary border-opacity-25 pt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small">Your Best Score:</span>
+                            {% if a.id in best_scores %}
+                                <strong class="text-{{ 'success' if best_scores[a.id] >= a.passing_score else 'warning' }} fs-6">
+                                    {{ best_scores[a.id] }}%
+                                </strong>
+                            {% else %}
+                                <span class="badge bg-dark text-muted">Unattempted</span>
+                            {% endif %}
+                        </div>
+
+                        <a href="{{ url_for('assessments.take_assessment', assessment_id=a.id) }}" class="btn btn-primary-custom btn-sm w-100">
+                            {% if a.id in best_scores %}Retake Test{% else %}Start Test Now{% endif %} <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Assessment Attempt History Table -->
+    <div class="saas-card p-4">
+        <div class="saas-card-header">
+            <div>
+                <h5 class="text-white fw-bold mb-0">Your Assessment History</h5>
+                <span class="text-muted small">Detailed record of verified attempts</span>
+            </div>
+            <span class="badge bg-secondary-subtle text-light small">{{ history|length }} Total Attempts</span>
+        </div>
+
+        {% if history %}
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Assessment Title</th>
+                            <th>Category</th>
+                            <th>Date Attempted</th>
+                            <th>Score</th>
+                            <th>Result</th>
+                            <th>Time Spent</th>
+                            <th class="text-end">Review</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for att in history %}
+                            <tr>
+                                <td><strong class="text-white">{{ att.assessment.title }}</strong></td>
+                                <td><span class="badge bg-secondary-subtle text-light">{{ att.assessment.category }}</span></td>
+                                <td class="text-muted small">{{ att.attempted_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+                                <td class="fw-bold fs-6 text-{{ 'success' if att.passed else 'danger' }}">{{ att.score }}%</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if att.passed else 'danger' }}-subtle text-{{ 'success' if att.passed else 'danger' }}">
+                                        {{ 'Passed' if att.passed else 'Needs Practice' }}
+                                    </span>
+                                </td>
+                                <td class="text-muted small">{{ att.time_taken_seconds // 60 }}m {{ att.time_taken_seconds % 60 }}s</td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('assessments.view_result', attempt_id=att.id) }}" class="btn btn-outline-custom btn-sm py-1 px-2">
+                                        View Explanations
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4 text-muted small">
+                No assessments taken yet. Choose any topic above to test your knowledge!
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

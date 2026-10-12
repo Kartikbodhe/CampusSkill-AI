@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}Placement Officer Analytics — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="saas-card mb-4 p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 small">
+                    Training & Placement Cell
+                </span>
+                <h3 class="text-white fw-bold mb-0">Cohort Placement Intelligence</h3>
+            </div>
+            <span class="text-muted small">Monitor campus-wide placement readiness, detect curriculum skill gaps, and export reports</span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('placement.export_csv', branch=filter_branch, year=filter_year) }}" class="btn btn-primary-custom btn-sm">
+                <i class="bi bi-download me-1"></i> Export Batch to CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Cohort Metric Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-tile h-100">
+                <div class="metric-icon-box bg-primary-subtle text-primary">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Registered Students</span>
+                    <h3 class="text-white fw-bold mb-0">{{ total_students }}</h3>
+                    <span class="small text-muted mt-1 d-block">Active Cohort</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-tile h-100">
+                <div class="metric-icon-box bg-info-subtle text-info">
+                    <i class="bi bi-speedometer"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Batch Avg Readiness</span>
+                    <h3 class="text-white fw-bold mb-0">{{ avg_score }}%</h3>
+                    <span class="small text-info mt-1 d-block">Weighted Average</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-tile h-100">
+                <div class="metric-icon-box bg-success-subtle text-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Placement Ready (&ge;75%)</span>
+                    <h3 class="text-white fw-bold mb-0">{{ readiness_bands['Ready'] }}</h3>
+                    <span class="small text-success mt-1 d-block">Immediate Candidates</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-tile h-100">
+                <div class="metric-icon-box bg-danger-subtle text-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Substantial Gap (&lt;50%)</span>
+                    <h3 class="text-white fw-bold mb-0">{{ readiness_bands['NeedsPrep'] }}</h3>
+                    <span class="small text-danger mt-1 d-block">Target for Workshops</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row: Branch Breakdown & Readiness Distribution -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="saas-card h-100 p-4">
+                <div class="saas-card-header">
+                    <div>
+                        <h5 class="text-white fw-bold mb-0">Cohort by Engineering Branch</h5>
+                        <span class="text-muted small">Distribution across academic departments</span>
+                    </div>
+                </div>
+                <div style="height: 240px;">
+                    <canvas id="branchBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="saas-card h-100 p-4">
+                <div class="saas-card-header">
+                    <div>
+                        <h5 class="text-white fw-bold mb-0">Readiness Score Distribution</h5>
+                        <span class="text-muted small">Placement preparedness tier breakdown</span>
+                    </div>
+                </div>
+                <div style="height: 240px;" class="d-flex justify-content-center">
+                    <canvas id="readinessPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Missing Skills Across All Students -->
+    <div class="saas-card p-4 mb-4">
+        <div class="saas-card-header">
+            <div>
+                <h5 class="text-white fw-bold mb-0">Most Common Skill Deficits in Cohort</h5>
+                <span class="text-muted small">Aggregated skill gaps to guide campus training and bootcamp scheduling</span>
+            </div>
+            <span class="badge bg-secondary-subtle text-light small">Department Priority</span>
+        </div>
+
+        <div class="row g-3">
+            {% for skill_name, count in top_missing_skills %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong class="text-white d-block">{{ skill_name }}</strong>
+                            <span class="text-danger small" style="font-size: 0.75rem;">
+                                <i class="bi bi-x-circle me-1"></i> Missing in {{ count }} student profiles
+                            </span>
+                        </div>
+                        <span class="badge badge-danger-soft fs-6">{{ count }}</span>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-muted small">No aggregated skill deficits logged yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="saas-card p-4 mb-4">
+        <form method="GET" action="{{ url_for('placement.dashboard') }}" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label-custom" for="q">Search Student or Email</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary border-opacity-50 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control form-control-custom" id="q" name="q" value="{{ filter_q }}" placeholder="Type name or email...">
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label-custom" for="branch">Filter by Branch</label>
+                <select class="form-select form-select-custom" id="branch" name="branch">
+                    <option value="">All Branches</option>
+                    {% for b in available_branches %}
+                        <option value="{{ b }}" {% if filter_branch == b %}selected{% endif %}>{{ b }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-custom" for="year">Academic Year</label>
+                <select class="form-select form-select-custom" id="year" name="year">
+                    <option value="">All Years</option>
+                    {% for y in available_years %}
+                        <option value="{{ y }}" {% if filter_year == y %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary-custom flex-grow-1">Filter Records</button>
+                <a href="{{ url_for('placement.dashboard') }}" class="btn btn-secondary-custom">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Filtered Students Table -->
+    <div class="saas-card p-4">
+        <div class="saas-card-header">
+            <div>
+                <h5 class="text-white fw-bold mb-0">Cohort Records ({{ student_records|length }} Matching Students)</h5>
+                <span class="text-muted small">Ranked by overall placement readiness</span>
+            </div>
+        </div>
+
+        {% if student_records %}
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Branch & Year</th>
+                            <th>Target Role</th>
+                            <th>Readiness Score</th>
+                            <th>Skills Count</th>
+                            <th>Status Band</th>
+                            <th class="text-end">Student Report</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in student_records %}
+                            {% set sp = item.profile %}
+                            <tr>
+                                <td>
+                                    <strong class="text-white">{{ sp.full_name }}</strong>
+                                    <span class="text-muted d-block small" style="font-size: 0.75rem;">{{ sp.user.email }}</span>
+                                </td>
+                                <td>
+                                    <span class="text-light small">{{ sp.branch }}</span>
+                                    <span class="text-secondary d-block small" style="font-size: 0.75rem;">{{ sp.current_year }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-light">{{ item.target_role }}</span>
+                                </td>
+                                <td>
+                                    <strong class="text-{{ item.readiness.badge_class }} fs-6">{{ item.score }}%</strong>
+                                </td>
+                                <td>{{ item.skills_count }} Recorded</td>
+                                <td>
+                                    <span class="badge badge-{{ item.readiness.badge_class }}-soft">
+                                        {{ item.readiness.band }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('placement.view_student', student_id=sp.id) }}" class="btn btn-outline-custom btn-sm py-1 px-2">
+                                        View Gap Report <i class="bi bi-chevron-right ms-1"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted small">
+                No students match your filter criteria.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Branch Bar Chart
+    const branchCtx = document.getElementById('branchBarChart');
+    if (branchCtx) {
+        new Chart(branchCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ branch_counts.keys()|list|tojson }},
+                datasets: [{
+                    label: 'Students',
+                    data: {{ branch_counts.values()|list|tojson }},
+                    backgroundColor: '#38BDF8',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: '#94A3B8', font: { size: 10 } }, grid: { display: false } },
+                    y: { ticks: { color: '#94A3B8', stepSize: 1 }, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // 2. Readiness Doughnut Chart
+    const pieCtx = document.getElementById('readinessPieChart');
+    if (pieCtx) {
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Placement Ready (>=75%)', 'Moderate (50-74%)', 'Needs Prep (<50%)'],
+                datasets: [{
+                    data: [{{ readiness_bands['Ready'] }}, {{ readiness_bands['Moderate'] }}, {{ readiness_bands['NeedsPrep'] }}],
+                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                    borderColor: '#1E293B',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#94A3B8', boxWidth: 12, font: { size: 11 } } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

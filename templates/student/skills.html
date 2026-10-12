@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Skills Management — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="saas-card mb-4 p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h4 class="text-white fw-bold mb-1">Technical & Soft Skills Portfolio</h4>
+            <p class="text-muted small mb-0">Record and manage your competencies across programming languages, frameworks, core CS, and soft skills.</p>
+        </div>
+        <button class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+            <i class="bi bi-plus-circle me-1"></i> Add New Skill
+        </button>
+    </div>
+
+    <!-- Active Recorded Skills Table -->
+    <div class="saas-card p-4 mb-4">
+        <div class="saas-card-header">
+            <div>
+                <h5 class="text-white fw-bold mb-0">Current Recorded Skills ({{ student_skills|length }})</h5>
+                <span class="text-muted small">Self-reported and assessment-verified competencies</span>
+            </div>
+            <span class="badge bg-secondary-subtle text-light small">
+                <i class="bi bi-info-circle me-1"></i> Self-assessed skills are clearly designated
+            </span>
+        </div>
+
+        {% if student_skills %}
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Skill Name</th>
+                            <th>Category</th>
+                            <th>Self-Reported Level</th>
+                            <th>Verified Test Score</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ss in student_skills %}
+                            <tr>
+                                <td>
+                                    <strong class="text-white">{{ ss.skill.name }}</strong>
+                                    {% if ss.skill.description %}
+                                        <span class="text-muted d-block small" style="font-size: 0.75rem;">{{ ss.skill.description }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-light">{{ ss.skill.category }}</span>
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('skills.update_skill', skill_entry_id=ss.id) }}" class="d-inline-flex align-items-center gap-2">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <select name="proficiency_level" class="form-select form-select-sm bg-dark text-white border-secondary border-opacity-50 py-1" style="width: 140px;" onchange="this.form.submit()">
+                                            <option value="beginner" {% if ss.proficiency_level == 'beginner' %}selected{% endif %}>Beginner</option>
+                                            <option value="intermediate" {% if ss.proficiency_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                                            <option value="advanced" {% if ss.proficiency_level == 'advanced' %}selected{% endif %}>Advanced</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>
+                                    {% if ss.assessment_score is not none %}
+                                        <span class="text-success fw-bold">{{ ss.assessment_score }}%</span>
+                                    {% else %}
+                                        <span class="text-muted small">Not tested yet</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if ss.verified %}
+                                        <span class="badge bg-success-subtle text-success border border-success border-opacity-25">
+                                            <i class="bi bi-patch-check-fill me-1"></i> Verified
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-subtle text-warning border border-warning border-opacity-25">
+                                            <i class="bi bi-person me-1"></i> Self-Assessed
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <form method="POST" action="{{ url_for('skills.delete_skill', skill_entry_id=ss.id) }}" class="d-inline" onsubmit="return confirm('Remove {{ ss.skill.name }} from your profile?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" title="Remove Skill">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-cpu text-muted fs-1 mb-2"></i>
+                <h5 class="text-white fw-bold">No Skills Recorded Yet</h5>
+                <p class="text-muted small mb-3">Add your programming, database, and professional skills to benchmark against placement roles.</p>
+                <button class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                    <i class="bi bi-plus-circle me-1"></i> Add Your First Skill
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal: Add New Skill -->
+<div class="modal fade" id="addSkillModal" tabindex="-1" aria-labelledby="addSkillModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content saas-card border-secondary border-opacity-50">
+            <div class="modal-header border-secondary border-opacity-25 pb-2">
+                <h5 class="modal-title text-white fw-bold" id="addSkillModalLabel">Add Skill to Portfolio</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('skills.add_skill') }}">
+                <div class="modal-body pt-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="mb-3">
+                        <label class="form-label-custom" for="skill_id">Select Skill from Catalog *</label>
+                        <select class="form-select form-select-custom" id="skill_id" name="skill_id" required>
+                            <option value="">Choose a skill...</option>
+                            {% for skill in available_catalog %}
+                                <option value="{{ skill.id }}">{{ skill.name }} ({{ skill.category }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label-custom" for="proficiency_level">Your Proficiency Level *</label>
+                        <select class="form-select form-select-custom" id="proficiency_level" name="proficiency_level" required>
+                            <option value="beginner">Beginner (Foundational understanding / basic syntax)</option>
+                            <option value="intermediate" selected>Intermediate (Hands-on experience / projects built)</option>
+                            <option value="advanced">Advanced (Deep expertise / performance optimization)</option>
+                        </select>
+                        <div class="form-text text-muted small mt-1">
+                            Note: This is recorded as a self-reported skill until you complete a verified practice assessment.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary border-opacity-25 pt-2">
+                    <button type="button" class="btn btn-secondary-custom btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-custom btn-sm">Save Skill</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

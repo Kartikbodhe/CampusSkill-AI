@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Assessment Result: {{ assessment.title }} — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Result Summary Banner -->
+    <div class="saas-card mb-4 p-4 text-center">
+        <div class="d-inline-flex align-items-center justify-content-center p-3 rounded-circle mb-3 bg-{{ 'success' if attempt.passed else 'danger' }}-subtle text-{{ 'success' if attempt.passed else 'danger' }}" style="width: 72px; height: 72px; font-size: 2rem;">
+            <i class="bi bi-{{ 'check-lg' if attempt.passed else 'x-lg' }}"></i>
+        </div>
+
+        <h3 class="text-white fw-bold mb-1">
+            {{ 'Congratulations! Assessment Passed' if attempt.passed else 'Assessment Completed — Keep Practicing' }}
+        </h3>
+        <p class="text-muted small mb-3">{{ assessment.title }} &bull; Passing Benchmark: {{ assessment.passing_score }}%</p>
+
+        <div class="d-flex justify-content-center gap-4 flex-wrap my-3">
+            <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50" style="min-width: 140px;">
+                <span class="text-muted small d-block">Your Score</span>
+                <h3 class="fw-bold mb-0 text-{{ 'success' if attempt.passed else 'warning' }}">{{ attempt.score }}%</h3>
+            </div>
+            <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50" style="min-width: 140px;">
+                <span class="text-muted small d-block">Questions Correct</span>
+                <h3 class="text-white fw-bold mb-0">{{ attempt.correct_count }} / {{ attempt.total_questions }}</h3>
+            </div>
+            <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50" style="min-width: 140px;">
+                <span class="text-muted small d-block">Time Taken</span>
+                <h3 class="text-white fw-bold mb-0">{{ attempt.time_taken_seconds // 60 }}m {{ attempt.time_taken_seconds % 60 }}s</h3>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-2 mt-3">
+            <a href="{{ url_for('assessments.take_assessment', assessment_id=assessment.id) }}" class="btn btn-secondary-custom btn-sm">
+                <i class="bi bi-arrow-repeat me-1"></i> Retake Test
+            </a>
+            <a href="{{ url_for('assessments.list_assessments') }}" class="btn btn-primary-custom btn-sm">
+                <i class="bi bi-grid me-1"></i> All Assessments
+            </a>
+            <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-custom btn-sm">
+                Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Question by Question Review -->
+    <h5 class="text-white fw-bold mb-3">Question Explanations & Detailed Feedback</h5>
+    <div class="vstack gap-4 mb-4">
+        {% for ans in answers %}
+            {% set q = ans.question %}
+            <div class="saas-card p-4 border-{{ 'success' if ans.is_correct else 'danger' }} border-opacity-25">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-secondary-subtle text-light">Question {{ loop.index }}</span>
+                    {% if ans.is_correct %}
+                        <span class="badge bg-success-subtle text-success border border-success border-opacity-25">
+                            <i class="bi bi-check-circle-fill me-1"></i> Correct (+1 Point)
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger border-opacity-25">
+                            <i class="bi bi-x-circle-fill me-1"></i> Incorrect
+                        </span>
+                    {% endif %}
+                </div>
+
+                <h6 class="text-white fw-semibold mb-3">{{ q.question_text }}</h6>
+
+                <!-- Options List -->
+                <div class="vstack gap-2 mb-3">
+                    {% for opt_letter, opt_text in [('A', q.option_a), ('B', q.option_b), ('C', q.option_c), ('D', q.option_d)] %}
+                        {% set is_selected = (ans.selected_option == opt_letter) %}
+                        {% set is_the_correct = (q.correct_option == opt_letter) %}
+                        
+                        <div class="p-2 px-3 rounded small d-flex align-items-center gap-2 
+                            {% if is_the_correct %}
+                                bg-success bg-opacity-15 border border-success border-opacity-50 text-success fw-bold
+                            {% elif is_selected and not is_the_correct %}
+                                bg-danger bg-opacity-15 border border-danger border-opacity-50 text-danger
+                            {% else %}
+                                bg-dark bg-opacity-25 text-muted
+                            {% endif %}">
+                            <span class="badge bg-secondary-subtle text-light">{{ opt_letter }}</span>
+                            <span class="flex-grow-1">{{ opt_text }}</span>
+                            {% if is_the_correct %}
+                                <span class="badge bg-success text-white small"><i class="bi bi-check me-1"></i> Correct Answer</span>
+                            {% elif is_selected %}
+                                <span class="badge bg-danger text-white small">Your Choice</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Explanation Box -->
+                {% if q.explanation %}
+                    <div class="p-3 rounded border border-info border-opacity-25 bg-info bg-opacity-10 small text-light">
+                        <strong class="text-info d-block mb-1"><i class="bi bi-lightbulb-fill me-1"></i> Solution Explanation:</strong>
+                        {{ q.explanation }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

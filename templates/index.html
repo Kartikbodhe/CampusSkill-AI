@@ -1,128 +1,358 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}CampusSkill AI — Turn Your Skills Into Placement Opportunities{% endblock %}
 
-    <title>CampusSkill AI</title>
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-wrapper">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 text-center">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+                    <i class="bi bi-stars text-warning me-1"></i> Academic Placement & Skill Gap Intelligence Platform
+                </span>
+                <h1 class="display-4 fw-extrabold text-white mb-3">
+                    Turn Your Skills Into <br><span class="text-gradient">Placement Opportunities</span>
+                </h1>
+                <p class="lead text-muted-custom mb-4 mx-auto" style="max-width: 720px;">
+                    Benchmark your technical skills against real-world job roles, detect critical preparation gaps, generate customized 4-phase learning roadmaps, and track placement readiness in real time.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3 mb-5">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary-custom px-4 py-3 fs-6">
+                        <i class="bi bi-rocket-takeoff-fill me-2"></i> Get Started Free
+                    </a>
+                    <a href="#how-it-works" class="btn btn-secondary-custom px-4 py-3 fs-6">
+                        <i class="bi bi-play-circle-fill me-2 text-info"></i> How It Works
+                    </a>
+                    <a href="#demo-analysis" class="btn btn-outline-custom px-4 py-3 fs-6">
+                        <i class="bi bi-search me-2"></i> View Sample Analysis
+                    </a>
+                </div>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+                <!-- Quick Role Access Cards (Demo Switcher) -->
+                <div class="saas-card p-3 p-md-4 text-start bg-opacity-50" style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(8px);">
+                    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                        <div class="small text-muted fw-semibold">
+                            <i class="bi bi-key-fill text-warning me-1"></i> Quick Evaluation Credentials (Pre-seeded Demo Accounts)
+                        </div>
+                        <span class="badge bg-secondary-subtle text-light">One-click Testing</span>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="p-2 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 small">
+                                <strong class="text-info d-block">Student Demo</strong>
+                                <span class="text-muted d-block">student@campusskill.edu</span>
+                                <span class="text-white font-monospace">Student@123</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-2 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 small">
+                                <strong class="text-warning d-block">Placement Officer Demo</strong>
+                                <span class="text-muted d-block">placement@campusskill.edu</span>
+                                <span class="text-white font-monospace">Placement@123</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-2 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 small">
+                                <strong class="text-danger d-block">Administrator Demo</strong>
+                                <span class="text-muted d-block">admin@campusskill.edu</span>
+                                <span class="text-white font-monospace">Admin@123</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<body>
-
-    <nav class="navbar">
-        <div class="logo">CampusSkill AI</div>
-
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="#">About</a>
-            <a href="#">Login</a>
+            </div>
         </div>
-    </nav>
+    </div>
+</section>
 
-
-    <main class="hero">
-
-        <div class="hero-content">
-
-            <p class="tagline">SMART PLACEMENT PREPARATION</p>
-
-            <h1>
-                Discover Your
-                <span>Skill Gap.</span>
-            </h1>
-
-            <p class="description">
-                CampusSkill AI helps students identify missing skills,
-                understand job requirements, and build a personalized
-                learning roadmap for placements.
-            </p>
-
-            <div class="buttons">
-                <a href="#" class="btn primary-btn">Get Started</a>
-                <a href="#" class="btn secondary-btn">Learn More</a>
-            </div>
-
-        </div>
-
-
-        <div class="hero-card">
-
-            <div class="card-header">
-                <span>Student Profile</span>
-                <span class="status">● Analyzing</span>
-            </div>
-
-            <div class="skill">
-                <div>
-                    <span>Python</span>
-                    <small>Strong</small>
-                </div>
-                <div class="progress">
-                    <div class="progress-fill python"></div>
-                </div>
-            </div>
-
-            <div class="skill">
-                <div>
-                    <span>SQL</span>
-                    <small>Improve</small>
-                </div>
-                <div class="progress">
-                    <div class="progress-fill sql"></div>
-                </div>
-            </div>
-
-            <div class="skill">
-                <div>
-                    <span>Power BI</span>
-                    <small>Skill Gap</small>
-                </div>
-                <div class="progress">
-                    <div class="progress-fill powerbi"></div>
-                </div>
-            </div>
-
-            <div class="roadmap">
-                <span>Next Step</span>
-                <strong>Learn Power BI →</strong>
-            </div>
-
+<!-- How It Works Section -->
+<section id="how-it-works" class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-primary text-uppercase fw-bold letter-spacing-1">Architecture & Flow</h6>
+            <h2 class="h1 fw-bold text-white">How CampusSkill AI Works</h2>
+            <p class="text-muted-custom">Four systematic steps to transform engineering students into confident campus placement candidates.</p>
         </div>
 
-    </main>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="saas-card h-100 p-4 text-center">
+                    <div class="brand-icon mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem;">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </div>
+                    <h5 class="text-white fw-bold mb-2">1. Profile & Skills</h5>
+                    <p class="text-muted-custom small mb-0">
+                        Record your current technical proficiencies across Python, SQL, DSA, Web Tech, Aptitude, and Communication.
+                    </p>
+                </div>
+            </div>
 
+            <div class="col-md-6 col-lg-3">
+                <div class="saas-card h-100 p-4 text-center">
+                    <div class="brand-icon mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem; background: linear-gradient(135deg, #0EA5E9, #38BDF8);">
+                        <i class="bi bi-crosshair"></i>
+                    </div>
+                    <h5 class="text-white fw-bold mb-2">2. Target Role Matching</h5>
+                    <p class="text-muted-custom small mb-0">
+                        Select career targets such as Data Analyst, Software Engineer, or Frontend Developer to compare required vs current skill levels.
+                    </p>
+                </div>
+            </div>
 
-    <section class="features">
+            <div class="col-md-6 col-lg-3">
+                <div class="saas-card h-100 p-4 text-center">
+                    <div class="brand-icon mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem; background: linear-gradient(135deg, #F59E0B, #FB923C);">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h5 class="text-white fw-bold mb-2">3. Gap Analysis</h5>
+                    <p class="text-muted-custom small mb-0">
+                        Our rule-based engine categorizes missing and weak competencies and computes an explainable weighted readiness score.
+                    </p>
+                </div>
+            </div>
 
-        <div class="feature">
-            <div class="feature-icon">01</div>
-            <h3>Analyze Skills</h3>
-            <p>
-                Add your current technical and soft skills.
-            </p>
+            <div class="col-md-6 col-lg-3">
+                <div class="saas-card h-100 p-4 text-center">
+                    <div class="brand-icon mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.5rem; background: linear-gradient(135deg, #10B981, #34D399);">
+                        <i class="bi bi-calendar-check-fill"></i>
+                    </div>
+                    <h5 class="text-white fw-bold mb-2">4. 4-Phase Roadmap</h5>
+                    <p class="text-muted-custom small mb-0">
+                        Execute a tailored preparation roadmap from core fundamentals to hands-on exercises, mini-projects, and interview prep.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5 bg-dark bg-opacity-25">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-info text-uppercase fw-bold">Platform Capabilities</h6>
+            <h2 class="h1 fw-bold text-white">Built for Students, T&P Cells, and Admins</h2>
+            <p class="text-muted-custom">Complete feature suite engineered for academic integrity and placement success.</p>
         </div>
 
-        <div class="feature">
-            <div class="feature-icon">02</div>
-            <h3>Find Skill Gaps</h3>
-            <p>
-                Compare your skills with your target job requirements.
-            </p>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="saas-card h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="metric-icon-box bg-primary-subtle text-primary">
+                            <i class="bi bi-speedometer2"></i>
+                        </div>
+                        <h5 class="text-white fw-bold mb-0">Explainable Readiness</h5>
+                    </div>
+                    <p class="text-muted-custom small">
+                        A composite formula combining Technical (40%), Aptitude (20%), DSA (20%), Communication (10%), and verified assessment metrics (10%).
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="saas-card h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="metric-icon-box bg-warning-subtle text-warning">
+                            <i class="bi bi-pie-chart-fill"></i>
+                        </div>
+                        <h5 class="text-white fw-bold mb-0">T&P Officer Analytics</h5>
+                    </div>
+                    <p class="text-muted-custom small">
+                        Monitor cohort readiness across engineering branches, discover most common curriculum gaps, and export reports in standard CSV format.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="saas-card h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="metric-icon-box bg-success-subtle text-success">
+                            <i class="bi bi-clipboard2-check-fill"></i>
+                        </div>
+                        <h5 class="text-white fw-bold mb-0">Practice Assessments</h5>
+                    </div>
+                    <p class="text-muted-custom small">
+                        Timed multiple-choice practice tests covering SQL, Python, Aptitude, DSA, and Communication with instant rationale and answer reviews.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="saas-card h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="metric-icon-box bg-info-subtle text-info">
+                            <i class="bi bi-briefcase-fill"></i>
+                        </div>
+                        <h5 class="text-white fw-bold mb-0">9+ Pre-configured Roles</h5>
+                    </div>
+                    <p class="text-muted-custom small">
+                        Industry-inspired sample requirements for Data Analyst, Software Developer, ML Engineer, Frontend, Backend, Business Analyst, and QA.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="saas-card h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="metric-icon-box bg-danger-subtle text-danger">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <h5 class="text-white fw-bold mb-0">Enterprise Security</h5>
+                    </div>
+                    <p class="text-muted-custom small">
+                        Werkzeug password hashing, CSRF session protection, role-based access control (RBAC), and sanitization for resume documents.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="saas-card h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="metric-icon-box bg-secondary-subtle text-light">
+                            <i class="bi bi-hdd-network-fill"></i>
+                        </div>
+                        <h5 class="text-white fw-bold mb-0">Zero Paid API Costs</h5>
+                    </div>
+                    <p class="text-muted-custom small">
+                        100% functional out-of-the-box using deterministic rule-based algorithms. Built with a modular interface ready for optional LLMs.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Example Skill Gap Analysis Section -->
+<section id="demo-analysis" class="py-5">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-info-subtle text-info px-3 py-1 mb-2">Live Analysis Example</span>
+                <h2 class="h1 fw-bold text-white mb-3">Transparent & Actionable Skill Gap Breakdown</h2>
+                <p class="text-muted-custom mb-4">
+                    See how CampusSkill AI compares real student proficiencies against target role requirements with weighted scoring and tailored remediation.
+                </p>
+
+                <div class="saas-card mb-3 p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Target Role Evaluated:</span>
+                        <span class="badge bg-primary px-3 py-1">Data Analyst (Sample Role)</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-white fw-semibold">Computed Role Readiness:</span>
+                        <span class="text-warning fw-bold fs-5">58.3% (Moderate Match)</span>
+                    </div>
+                    <div class="progress-saas mb-2">
+                        <div class="progress-bar-saas bg-warning" style="width: 58.3%;"></div>
+                    </div>
+                    <div class="small text-muted">
+                        Formula: Sum of weighted earned points (7) / total required points (12).
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary-custom">
+                        Analyze My Skills Now <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="saas-card p-4">
+                    <h5 class="text-white fw-bold mb-3 d-flex align-items-center justify-content-between">
+                        <span>Sample Role Gap Matrix</span>
+                        <span class="badge bg-secondary-subtle text-light small">Live Model Output</span>
+                    </h5>
+
+                    <div class="vstack gap-3">
+                        <div class="p-3 rounded border border-danger border-opacity-25 bg-danger bg-opacity-10">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> Power BI — Missing</strong>
+                                <span class="badge badge-danger-soft">High Priority</span>
+                            </div>
+                            <div class="small text-muted mb-1">Required: Intermediate &bull; Student: Not Learned</div>
+                            <div class="small text-light"><strong>Action:</strong> Master star-schema data modeling, calculated DAX columns, and visual storytelling.</div>
+                        </div>
+
+                        <div class="p-3 rounded border border-warning border-opacity-25 bg-warning bg-opacity-10">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-warning"><i class="bi bi-arrow-up-circle-fill me-1"></i> SQL — Needs Improvement</strong>
+                                <span class="badge badge-warning-soft">Critical Priority</span>
+                            </div>
+                            <div class="small text-muted mb-1">Required: Advanced &bull; Student: Beginner</div>
+                            <div class="small text-light"><strong>Action:</strong> Practice complex window functions, table joins, grouping, and subquery optimization.</div>
+                        </div>
+
+                        <div class="p-3 rounded border border-success border-opacity-25 bg-success bg-opacity-10">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Excel — Meets Requirement</strong>
+                                <span class="badge badge-success-soft">Proficient</span>
+                            </div>
+                            <div class="small text-muted mb-1">Required: Intermediate &bull; Student: Intermediate</div>
+                            <div class="small text-light"><strong>Action:</strong> Maintain skills by practicing XLOOKUP and dynamic pivot summaries.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Frequently Asked Questions -->
+<section id="faq" class="py-5 bg-dark bg-opacity-25">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-primary text-uppercase fw-bold">Common Queries</h6>
+            <h2 class="h1 fw-bold text-white">Frequently Asked Questions</h2>
         </div>
 
-        <div class="feature">
-            <div class="feature-icon">03</div>
-            <h3>Build Roadmap</h3>
-            <p>
-                Get a clear learning path for your placement preparation.
-            </p>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="saas-card mb-3 p-0 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed bg-transparent text-white fw-bold shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                How is the placement readiness score calculated?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small pt-0">
+                                The overall readiness score uses an explainable weighted breakdown: Technical role alignment (40%), Aptitude (20%), Data Structures & Algorithms (20%), Professional Communication (10%), and Verified practice test performance (10%).
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="saas-card mb-3 p-0 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed bg-transparent text-white fw-bold shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Does this guarantee selection by hiring companies?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small pt-0">
+                                No. CampusSkill AI is an educational assessment and guided preparation tool. Job hiring depends on numerous factors including company requirements, market conditions, and interview rounds. We never make false placement guarantees.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="saas-card mb-3 p-0 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed bg-transparent text-white fw-bold shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                How can placement officers use this data?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small pt-0">
+                                Placement officers can view aggregate batch preparedness, filter students by branch, year, and target role, pinpoint common curriculum skill deficits to organize targeted workshops, and export verified records to CSV for company sharing.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-    </section>
-
-</body>
-
-</html>
+    </div>
+</section>
+{% endblock %}

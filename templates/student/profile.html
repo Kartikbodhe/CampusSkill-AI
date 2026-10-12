@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Student Profile — CampusSkill AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="saas-card p-4 p-md-5">
+                <div class="saas-card-header">
+                    <div>
+                        <h4 class="text-white fw-bold mb-1">Student Profile Details</h4>
+                        <span class="text-muted small">Manage academic information, career goals, and resume credentials</span>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Profile Center</span>
+                </div>
+
+                <form method="POST" action="{{ url_for('student.profile') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="full_name">Full Name *</label>
+                            <input type="text" class="form-control form-control-custom" id="full_name" name="full_name" value="{{ profile.full_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="email">Account Email</label>
+                            <input type="email" class="form-control form-control-custom" id="email" value="{{ profile.user.email }}" disabled>
+                            <span class="form-text text-muted small">Managed via account login</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="college_name">College / Institute Name</label>
+                            <input type="text" class="form-control form-control-custom" id="college_name" name="college_name" value="{{ profile.college_name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="branch">Engineering Branch</label>
+                            <select class="form-select form-select-custom" id="branch" name="branch">
+                                {% for b in ['Computer Science', 'Information Technology', 'Electronics & Communication', 'Data Science & AI', 'Mechanical Engineering', 'Electrical Engineering'] %}
+                                    <option value="{{ b }}" {% if profile.branch == b %}selected{% endif %}>{{ b }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="current_year">Current Academic Year</label>
+                            <select class="form-select form-select-custom" id="current_year" name="current_year">
+                                {% for y in ['1st Year', '2nd Year', '3rd Year', '4th Year'] %}
+                                    <option value="{{ y }}" {% if profile.current_year == y %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="graduation_year">Expected Graduation Year</label>
+                            <input type="number" class="form-control form-control-custom" id="graduation_year" name="graduation_year" value="{{ profile.graduation_year or 2026 }}" min="2024" max="2032">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label-custom" for="target_job_role_id">Target Job Role</label>
+                        <select class="form-select form-select-custom" id="target_job_role_id" name="target_job_role_id">
+                            <option value="">Select target role...</option>
+                            {% for role in job_roles %}
+                                <option value="{{ role.id }}" {% if profile.target_job_role_id == role.id %}selected{% endif %}>
+                                    {{ role.title }} ({{ role.category }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label-custom" for="career_objective">Career Objective & Summary</label>
+                        <textarea class="form-control form-control-custom" id="career_objective" name="career_objective" rows="3" placeholder="Briefly describe your career aspirations, key areas of interest, and target placements...">{{ profile.career_objective or '' }}</textarea>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="github_url"><i class="bi bi-github me-1"></i> GitHub Profile Link</label>
+                            <input type="url" class="form-control form-control-custom" id="github_url" name="github_url" value="{{ profile.github_url or '' }}" placeholder="https://github.com/username">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom" for="linkedin_url"><i class="bi bi-linkedin me-1 text-info"></i> LinkedIn Profile Link</label>
+                            <input type="url" class="form-control form-control-custom" id="linkedin_url" name="linkedin_url" value="{{ profile.linkedin_url or '' }}" placeholder="https://linkedin.com/in/username">
+                        </div>
+                    </div>
+
+                    <!-- Secure Resume Upload Section -->
+                    <div class="p-3 rounded border border-secondary border-opacity-25 bg-dark bg-opacity-50 mb-4">
+                        <label class="form-label-custom d-block" for="resume_file">
+                            <i class="bi bi-file-earmark-pdf me-1 text-danger"></i> Upload Placement Resume (PDF or DOCX, max 5MB)
+                        </label>
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <input type="file" class="form-control form-control-custom flex-grow-1" id="resume_file" name="resume_file" accept=".pdf,.docx,.doc">
+                            {% if profile.resume_filename %}
+                                <a href="{{ url_for('student.download_resume') }}" class="btn btn-outline-custom btn-sm">
+                                    <i class="bi bi-download me-1"></i> Download Stored Resume
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% if profile.resume_filename %}
+                            <div class="small text-success mt-2">
+                                <i class="bi bi-check-circle me-1"></i> Stored securely: {{ profile.resume_filename }}
+                            </div>
+                        {% else %}
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-shield-lock me-1"></i> Files are stored securely on the server with sanitized filenames.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('student.dashboard') }}" class="btn btn-secondary-custom">Cancel</a>
+                        <button type="submit" class="btn btn-primary-custom px-4">
+                            Save Profile Changes <i class="bi bi-check-lg ms-1"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

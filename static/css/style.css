@@ -1,0 +1,352 @@
+/* CampusSkill AI — Design System & Custom Styles */
+:root {
+  --bg-primary: #0B1120;
+  --bg-secondary: #0F172A;
+  --surface-card: #1E293B;
+  --surface-card-hover: #243248;
+  --surface-border: #334155;
+  --surface-border-subtle: #1E293B;
+  
+  --primary-accent: #2563EB;
+  --primary-accent-hover: #1D4ED8;
+  --primary-gradient: linear-gradient(135deg, #2563EB 0%, #38BDF8 100%);
+  
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  
+  --success-color: #10B981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --warning-color: #F59E0B;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --danger-color: #EF4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --info-color: #38BDF8;
+  --info-bg: rgba(56, 189, 248, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+}
+
+/* Typography & Text */
+.text-gradient {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.text-muted-custom {
+  color: var(--text-muted) !important;
+}
+
+/* Navbar */
+.navbar-custom {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--surface-border);
+  padding: 0.85rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.navbar-brand-badge {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.brand-icon {
+  background: var(--primary-gradient);
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+.nav-link-custom {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.9rem !important;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+.nav-link-custom:hover, .nav-link-custom.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Buttons */
+.btn-primary-custom {
+  background: var(--primary-accent);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-primary-custom:hover {
+  background: var(--primary-accent-hover);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+}
+.btn-secondary-custom {
+  background: var(--surface-card);
+  color: var(--text-main);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-secondary-custom:hover {
+  background: var(--surface-card-hover);
+  color: #fff;
+  border-color: var(--text-muted);
+}
+.btn-outline-custom {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1.1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.btn-outline-custom:hover {
+  color: #fff;
+  border-color: #38BDF8;
+  background: rgba(56, 189, 248, 0.05);
+}
+
+/* Cards & Surfaces */
+.saas-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.saas-card:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: var(--shadow-md);
+}
+.saas-card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Stat Metric Tiles */
+.metric-tile {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.metric-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+/* Badges */
+.badge-custom {
+  font-weight: 600;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.badge-beginner {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38BDF8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.badge-intermediate {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.badge-advanced {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.badge-danger-soft {
+  background: var(--danger-bg);
+  color: var(--danger-color);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.badge-warning-soft {
+  background: var(--warning-bg);
+  color: var(--warning-color);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.badge-success-soft {
+  background: var(--success-bg);
+  color: var(--success-color);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Tables */
+.table-custom {
+  width: 100%;
+  color: var(--text-main);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.table-custom th {
+  background: rgba(15, 23, 42, 0.6);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+.table-custom td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+.table-custom tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Form Controls */
+.form-control-custom, .form-select-custom {
+  background: #0F172A;
+  border: 1px solid var(--surface-border);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.form-control-custom:focus, .form-select-custom:focus {
+  background: #0F172A;
+  border-color: #38BDF8;
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  outline: none;
+}
+.form-label-custom {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+/* Progress Bars */
+.progress-saas {
+  height: 10px;
+  background: #0F172A;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.progress-bar-saas {
+  background: var(--primary-gradient);
+  border-radius: 6px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Roadmap Checkbox */
+.roadmap-item {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: rgba(15, 23, 42, 0.5);
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.roadmap-item:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(15, 23, 42, 0.8);
+}
+.roadmap-item.completed {
+  opacity: 0.75;
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.05);
+}
+.roadmap-checkbox {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  accent-color: #10B981;
+  margin-top: 2px;
+}
+
+/* Hero Section */
+.hero-wrapper {
+  padding: 5rem 0 4rem;
+  background: radial-gradient(circle at 50% 10%, rgba(37, 99, 235, 0.15) 0%, transparent 60%);
+  text-align: center;
+}
+
+/* Footer */
+.footer-custom {
+  background: #080D1A;
+  border-top: 1px solid var(--surface-border);
+  padding: 2.5rem 0 1.5rem;
+  margin-top: auto;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
